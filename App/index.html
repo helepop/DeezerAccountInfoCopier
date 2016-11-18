@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DeezerAccountInformation Copier</title>
+    <link rel="stylesheet" href="css/default.css" />
+    <script type="text/javascript" src="lib/jquery-3.1.1.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+
+    <!-- Loading the Deezer SDK -->
+	<script type="text/javascript" src="http://cdn-files.deezer.com/js/min/dz.js"></script>
+<!-- OR -->
+<!--<script type="text/javascript" src="https://cdns-files.deezer.com/js/min/dz.js"></script>  -->
+
+    <!-- Custom Scripts -->
+    <script type="text/javascript" src="lib/helper.js"></script>
+
+
+</head>
+<body>     
+    <p>Start copying Data from one User to an other User </p>
+    <input type="file" id="files" name="files[]" multiple> 
+    <input type="button" onclick="start();" Value="Copy Albums" />
+
+</body>
+    <script>
+        function handleFileSelect(evt) {
+            var files = evt.target.files; // FileList object
+           
+            start(files[0]);
+        }
+        document.getElementById('files').addEventListener('change', handleFileSelect, false);
+</script>
