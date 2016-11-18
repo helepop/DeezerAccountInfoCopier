@@ -1,0 +1,2 @@
+# DeezerAccountInfoCopier
+smallScriptForCopyingDeezerAccountInformationsIntoAnotherAccount
