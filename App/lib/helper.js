@@ -1,12 +1,12 @@
 "use strict";
 
+var accessToken;
+
 function Start(file){
     console.log(file);
     var fr = new FileReader(); 
     fr.onloadend = function(event){
-        var res = event.target.result;
-        //var albumsContent = fr.result;
-        console.log(res);             
+        var res = event.target.result;             
         var albums = JSON.parse(res);
         CopyAlbums(albums);
     };
@@ -15,12 +15,17 @@ function Start(file){
 }
 
 function CopyAlbums(albums){
-    console.log(albums);
+    //console.log(albums);
     var len = albums.data.length;
+    var albenTotal = albums.data.total
+     
     console.log("laenge: " + len);
     for (var i = 0; i < len; i++) {
         var album = albums.data[i];
-        console.log(i + "." + "id: " + album.id + " - " + album.title);
+        //console.log(i + "." + "id: " + album.id + " - " + album.title);
+        DZ.api('/album/' + album.id, function(response, i, album){
+            console.log(i + "." + "id: " + album.id + " - " + response.title);
+        });
     }
 
     /*albums.data.forEach(function(element) {
@@ -47,6 +52,7 @@ function Init(){
     DZ.getLoginStatus(function(response) {
         if (response.authResponse) {
             console.log("logged in and connected user, someone you know");
+            accessToken = response.authResponse.accessToken;
         } else {
             console.log("no user session available, someone you dont know");
             Login();
@@ -60,6 +66,7 @@ function Login(){
             DZ.api('/user/me', function (response) {
                 alert('Good to see you, ' + response.name + '.');
             });
+            accessToken = response.authResponse.accessToken;
         } else {
             alert('User cancelled login or did not fully authorize.');
         }
