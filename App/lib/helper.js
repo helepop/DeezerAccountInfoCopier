@@ -2,16 +2,33 @@
 
 var accessToken;
 
-function Start(file){
-    console.log(file);
-    var fr = new FileReader(); 
-    fr.onloadend = function(event){
-        var res = event.target.result;             
-        var albums = JSON.parse(res);
-        CopyAlbums(albums);
-    };
-    
-    fr.readAsBinaryString(file);
+function Start(files){
+    console.log("files: " + files);
+    for(var j = 0, file; file = files[j]; j++){        
+        console.log(file);
+        var fr = new FileReader();
+        fr.onloadend = function(event){
+            var res = event.target.result;             
+            var content = JSON.parse(res);
+            copyContent(content);
+        };
+        fr.readAsBinaryString(file);
+    }
+}
+
+function copyContent(content){
+	for(var j = 0, data; data = content.data[j]; j++){	
+        var apiCall = 'user/me/' + data.type + 's';
+        console.log('apiCall: ' + apiCall);
+        DZ.api(apiCall, 'POST', {album_id : data.id} , function(response){
+            if(response.error){
+                var error = response.error;
+                console.log(error.message);
+            }else{
+                console.log(1 + "." + "id: " + response.id + " - " + response.title);
+            }
+        });
+    } 
 }
 
 function CopyAlbums(albums){
@@ -23,8 +40,8 @@ function CopyAlbums(albums){
     for (var i = 0; i < len; i++) {
         var album = albums.data[i];
         //console.log(i + "." + "id: " + album.id + " - " + album.title);
-        DZ.api('/album/' + album.id, function(response, i, album){
-            console.log(i + "." + "id: " + album.id + " - " + response.title);
+        DZ.api('user/me/albums', album.id, function(response){
+            console.log(1 + "." + "id: " +  + " - " + response.title);
         });
     }
 
@@ -33,10 +50,12 @@ function CopyAlbums(albums){
     }, this);*/
 }
 
+
+
 function HandleFileSelect(evt) {
     var files = evt.target.files; // FileList object
     
-    Start(files[0]);
+    Start(files);
 }
 
 function Init(){
@@ -67,6 +86,7 @@ function Login(){
                 alert('Good to see you, ' + response.name + '.');
             });
             accessToken = response.authResponse.accessToken;
+            userid = userID;
         } else {
             alert('User cancelled login or did not fully authorize.');
         }
