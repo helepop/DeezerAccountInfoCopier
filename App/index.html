@@ -15,12 +15,16 @@
         <!-- Custom Scripts -->
         <script type="text/javascript" src="lib/helper.js"></script>
     </head>
-    <body onload="Init();">     
+    <body onload="Init();"> 
+        <div id="dz-root"></div>
+        <div id="app" align="center" style="width:100%"></div>
         <p>Start copying Data from one User to an other User </p>
         <p id="dz-init"></p>
         <input type="file" id="files" name="files[]" multiple> 
         <input type="button" onclick="Start();" Value="Copy Albums" />
-        <div id="dz-root" />
+        
+        <output id="Results" />
+        
     </body>
 </html>
 
