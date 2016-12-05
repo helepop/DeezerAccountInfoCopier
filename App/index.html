@@ -15,7 +15,7 @@
         <!-- Custom Scripts -->
         <script type="text/javascript" src="lib/helper.js"></script>
     </head>
-    <body onload="Init();"> 
+    <body onload="Init(new Worker('lib/worker.js'));"> 
         <div id="dz-root"></div>
         <div id="app" align="center" style="width:100%"></div>
         <p>Start copying Data from one User to an other User </p>

@@ -5,7 +5,7 @@
     "version": "0.1.0",
     "configurations": [
         {
-            "name": "Launch localhost with sourcemaps",
+            "name": "attach localhost with sourcemaps",
             "type": "chrome",
             "request": "attach",
             "port": 9222,
