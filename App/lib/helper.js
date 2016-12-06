@@ -17,30 +17,79 @@ function Start(files) {
 }
 
 function copyContent(content) {
+    var id, name, type;
     for (var j = 0, data; data = content.data[j]; j++) {
         console.log('data: ' + data);
+        type = data.type;
         if (data.type != 'playlist') {
-            var id = data.id;
+            id = data.id;
             if (data.type != 'artist')
-                var name = data.title;
+                name = data.title;
             else
-                var name = data.name;
+                name = data.name;
 
             var apiCall = 'user/1240636962/' + data.type + 's';
             console.log('apiCall: ' + apiCall + " - " + id + " " + name);
-            output.push(j + 1, ' apiCall: ', apiCall, " ", data.type, ": ", id, " ", name, '<br />');
-            DZ.api(apiCall, 'POST', { album_id: data.id }, function (response) {
-                if (response.error) {
-                    var error = response.error;
-                    console.log(error.message);
-                } else {
-                    console.log(1 + "." + "id: " + response.id + " - " + response.title);
-                }
-            });
+            output.push(j + 1, ' apiCall: ', apiCall, " ", type, ": ", id, " ", name, '<br />');
+            switch (type) {
+                case "album":
+                        copyAlbum(id, apiCall);
+                    break;
+                case "artist":
+                        copyArtist(id, apiCall);    
+                    break;
+                case "track":
+                        copyTrack(id, apiCall);
+                    break;
+            
+                default:
+                    console.log("Type: " & type & "not supported");
+                    break;
+            }
             document.getElementById('Results').innerHTML = output.join('');
         }
     }
 }
+
+function copyAlbum(albumId, apiCall){
+    if(albumId == "") return;
+
+    DZ.api(apiCall, 'POST', { album_id: albumId }, function (response) {
+        if (response.error) {
+            var error = response.error;
+            console.log(error.message);
+        } else {
+            console.log(1 + "." + "id: " + response.id + " - " + response.title);
+        }
+    });
+}
+
+function copyArtist(artistId, apiCall){
+    if(artistId == "") return;
+    
+    DZ.api(apiCall, 'POST', { artist_id: artistId }, function (response) {
+        if (response.error) {
+            var error = response.error;
+            console.log(error.message);
+        } else {
+            console.log(1 + "." + "id: " + response.id + " - " + response.title);
+        }
+    });
+}
+
+function copyTrack(trackId, apiCall){
+    if(trackId == "") return;
+
+    DZ.api(apiCall, 'POST', { track_id: trackId }, function (response) {
+        if (response.error) {
+            var error = response.error;
+            console.log(error.message);
+        } else {
+            console.log(1 + "." + "id: " + response.id + " - " + response.title);
+        }
+    });
+}
+
 
 function HandleFileSelect(evt) {
     var files = evt.target.files; // FileList object
