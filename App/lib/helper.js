@@ -16,38 +16,56 @@ function Start(files) {
     myWorker.postMessage(files);
 }
 
+/*
+function Start(files) {
+    for(var f=0, file; file = files[f]; f++){
+        ReadFile(file);
+    }
+}
+
+function ReadFile(file){
+    var reader = new FileReader();
+    var filename = file.name;
+    reader.onload = function(event, filename) {  
+        var content = JSON.parse(event.target.result);
+        output.push('<p><b>' + filename + '</b></p>');
+        document.getElementById('Results').innerHTML = output.join('');
+        copyContent(content);
+    };
+    reader.readAsBinaryString(file);
+} 
+*/
+
 function copyContent(content) {
     var id, name, type;
     for (var j = 0, data; data = content.data[j]; j++) {
         console.log('data: ' + data);
         type = data.type;
-        if (data.type != 'playlist') {
-            id = data.id;
-            if (data.type != 'artist')
-                name = data.title;
-            else
-                name = data.name;
+        id = data.id;
+        if (data.type != 'artist')
+            name = data.title;
+        else
+            name = data.name;
 
-            var apiCall = 'user/1240636962/' + data.type + 's';
-            console.log('apiCall: ' + apiCall + " - " + id + " " + name);
-            output.push(j + 1, ' apiCall: ', apiCall, " ", type, ": ", id, " ", name, '<br />');
-            switch (type) {
-                case "album":
-                        copyAlbum(id, apiCall);
-                    break;
-                case "artist":
-                        copyArtist(id, apiCall);    
-                    break;
-                case "track":
-                        copyTrack(id, apiCall);
-                    break;
-            
-                default:
-                    console.log("Type: " & type & "not supported");
-                    break;
-            }
-            document.getElementById('Results').innerHTML = output.join('');
+        var apiCall = 'user/1240636962/' + data.type + 's';
+        console.log('apiCall: ' + apiCall + " - " + id + " " + name);
+        output.push(j + 1, ' apiCall: ', apiCall, " ", type, ": ", id, " ", name, '<br />');
+        switch (type) {
+            case "album":
+                    copyAlbum(id, apiCall);
+                break;
+            case "artist":
+                    copyArtist(id, apiCall);    
+                break;
+            case "track":
+                    copyTrack(id, apiCall);
+                break;
+        
+            default:
+                console.log("Type: " & type & "not supported");
+                break;
         }
+        document.getElementById('Results').innerHTML = output.join('');
     }
 }
 
