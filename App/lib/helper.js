@@ -60,7 +60,9 @@ function copyContent(content) {
             case "track":
                     copyTrack(id, apiCall);
                 break;
-        
+            case "playlist":
+                    copyPlayList(id, apiCall, data);
+                break;        
             default:
                 console.log("Type: " & type & "not supported");
                 break;
@@ -108,6 +110,19 @@ function copyTrack(trackId, apiCall){
     });
 }
 
+function copyPlayList(playListId, apiCall, data){
+    if(playListId == "") return;
+
+    console.log("Playlist: " + data)
+    /*DZ.api(apiCall, 'POST', { title: data.title }, function (response) {
+        if (response.error) {
+            var error = response.error;
+            console.log(error.message);
+        } else {
+            console.log(1 + "." + "id: " + response.id + " - " + response.title);
+        }
+    });*/
+}
 
 function HandleFileSelect(evt) {
     var files = evt.target.files; // FileList object
