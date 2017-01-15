@@ -4,16 +4,17 @@ var myWorker;
 var accessToken;
 var output = [];
 
-function Start(files) {
-    myWorker.onmessage = function(e) {
-        for (var j = 0, data; data = e.data[j]; j++) {
-            output.push('<p><b>' + data.filename + '</b></p>');
-            document.getElementById('Results').innerHTML = output.join('');
-            copyContent(data.content);
-        }
-    };
+//SourceVariables
+var sourceTracksData;
+var SourceAlbumsData;
+var SourceArtistsData;
 
-    myWorker.postMessage(files);
+// Playlists
+var sourcePlayListData;
+var TargetPLayListData;
+
+function Start(files) {
+    
 }
 
 /*
@@ -37,7 +38,7 @@ function ReadFile(file){
 */
 
 function copyContent(content) {
-    var id, name, type;
+    var id, name, type, TargetPLayLists;
     for (var j = 0, data; data = content.data[j]; j++) {
         console.log('data: ' + data);
         type = data.type;
@@ -46,22 +47,28 @@ function copyContent(content) {
             name = data.title;
         else
             name = data.name;
-
+                        
         var apiCall = 'user/1240636962/' + data.type + 's';
         console.log('apiCall: ' + apiCall + " - " + id + " " + name);
         output.push(j + 1, ' apiCall: ', apiCall, " ", type, ": ", id, " ", name, '<br />');
         switch (type) {
             case "album":
-                    copyAlbum(id, apiCall);
+                copyAlbum(id, apiCall);
                 break;
             case "artist":
-                    copyArtist(id, apiCall);    
+                copyArtist(id, apiCall);    
                 break;
             case "track":
-                    copyTrack(id, apiCall);
+                copyTrack(id, apiCall);
                 break;
             case "playlist":
-                    copyPlayList(id, apiCall, data);
+                if(TargetPLayLists == undefined){
+                    TargetPLayLists = getTargetPLaylists(apiCall)
+                }
+
+
+                console.log("Playlist: " + data)
+                copyPlayList(id, apiCall, data);
                 break;        
             default:
                 console.log("Type: " & type & "not supported");
@@ -69,6 +76,27 @@ function copyContent(content) {
         }
         document.getElementById('Results').innerHTML = output.join('');
     }
+}
+
+function getTargetPLaylists(apiCall){
+    var TargetPLayLists;
+
+    DZ.api(apiCall + "?limit=100", function (PlayListResponse, TargetPLayLists) {
+        TargetPLayLists= PlayListResponse.Data
+        //TargetPLayLists.filter()
+    })
+
+    return TargetPLayLists;
+   
+   
+    // myWorker.onmessage = function(e) {
+    //     TargetPLayLists = e.data;
+    // };
+
+    //myWorker.postMessage({func: 'geTargetPlayList',apiCall: apiCall});
+    
+
+    return TargetPLayLists;
 }
 
 function copyAlbum(albumId, apiCall){
@@ -110,10 +138,16 @@ function copyTrack(trackId, apiCall){
     });
 }
 
-function copyPlayList(playListId, apiCall, data){
+function copyPlayList(playListId, apiCall, sourcePlayListData){
     if(playListId == "") return;
 
-    console.log("Playlist: " + data)
+    DZ.api(apiCall, function(PlayListResponse){
+        console.log("Playlist: " + PlayListResponse)
+            
+        var TargetPLayLists = PlayListResponse
+        
+    });
+
     /*DZ.api(apiCall, 'POST', { title: data.title }, function (response) {
         if (response.error) {
             var error = response.error;
@@ -126,6 +160,35 @@ function copyPlayList(playListId, apiCall, data){
 
 function HandleFileSelect(evt) {
     var files = evt.target.files; // FileList object
+
+    myWorker.onmessage = function(e) {
+        for (var j = 0, data; data = e.data[j]; j++) {
+            var type = data.content.data.type; 
+            switch (type) {
+                case "playlist":
+                    sourcePlayListData = data.content;
+                    //todo: get TargetPLayListData here
+                    break;
+                case "track":
+                    sourceTracksData = data.content;
+                    break;
+                case "album":
+                    SourceAlbumsData = data.content;
+                    break;
+                case "track":
+                    sourceTracksData = data.content;
+                    break;
+                default:
+                    break;
+            }
+         }
+    };
+
+    output.push('<p><b>' + data.filename + '</b></p>');
+    document.getElementById('Results').innerHTML = output.join('');
+    copyContent(data.content);
+
+    myWorker.postMessage({"func": "ReadFiles", "files": files});
 
     Start(files);
 }
