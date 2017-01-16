@@ -2,22 +2,26 @@
     // Use IntelliSense to learn about possible Node.js debug attributes.
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.1.0",
-    "configurations": [
+    "version": "0.2.0",
+    "configurations": [        
+
         {
-            "name": "attach localhost with sourcemaps",
+            "name": "attach to Chrome",
             "type": "chrome",
             "request": "attach",
             "port": 9222,
-            "url": "http://localhost/DeezerAccountInfoCopier/app/",
-            "webRoot": "${workspaceRoot}/app",
-            "sourceMaps": true
+            "url": "http://localhost/DeezerAccountInfoCopier/app",
+            "sourceMaps": true,
+            "webRoot": "${workspaceRoot}/app"
         },
         {
             "name": "Launch index.html (without sourcemaps)",
             "type": "chrome",
             "request": "attach",
-            "file": "${workspaceRoot}/app/index.html"
+            "file": "${workspaceRoot}/app/index.html",
+            "url": "http://localhost/DeezerAccountInfoCopier/app",
+            "sourceMaps": true,
+            "webRoot": "${workspaceRoot}/app"
         }
     ]
 }

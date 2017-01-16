@@ -4,21 +4,11 @@ var myWorker;
 var accessToken;
 var output = [];
 
-//SourceVariables
-var sourceTracksData;
-var SourceAlbumsData;
-var SourceArtistsData;
-
 // Playlists
 var sourcePlayListData;
 var TargetPLayListData;
 
-function Start(files) {
-    
-}
-
-/*
-function Start(files) {
+/*function Start(files) {
     for(var f=0, file; file = files[f]; f++){
         ReadFile(file);
     }
@@ -34,14 +24,12 @@ function ReadFile(file){
         copyContent(content);
     };
     reader.readAsBinaryString(file);
-} 
-*/
+} */
 
-function copyContent(content) {
-    var id, name, type, TargetPLayLists;
+function copyContent(content, type) {
+    var id, name;
     for (var j = 0, data; data = content.data[j]; j++) {
-        console.log('data: ' + data);
-        type = data.type;
+        //console.log('data: ' + data);
         id = data.id;
         if (data.type != 'artist')
             name = data.title;
@@ -62,13 +50,8 @@ function copyContent(content) {
                 copyTrack(id, apiCall);
                 break;
             case "playlist":
-                if(TargetPLayLists == undefined){
-                    TargetPLayLists = getTargetPLaylists(apiCall)
-                }
-
-
                 console.log("Playlist: " + data)
-                copyPlayList(id, apiCall, data);
+                copyPlayList(data, apiCall);
                 break;        
             default:
                 console.log("Type: " & type & "not supported");
@@ -76,27 +59,6 @@ function copyContent(content) {
         }
         document.getElementById('Results').innerHTML = output.join('');
     }
-}
-
-function getTargetPLaylists(apiCall){
-    var TargetPLayLists;
-
-    DZ.api(apiCall + "?limit=100", function (PlayListResponse, TargetPLayLists) {
-        TargetPLayLists= PlayListResponse.Data
-        //TargetPLayLists.filter()
-    })
-
-    return TargetPLayLists;
-   
-   
-    // myWorker.onmessage = function(e) {
-    //     TargetPLayLists = e.data;
-    // };
-
-    //myWorker.postMessage({func: 'geTargetPlayList',apiCall: apiCall});
-    
-
-    return TargetPLayLists;
 }
 
 function copyAlbum(albumId, apiCall){
@@ -138,16 +100,15 @@ function copyTrack(trackId, apiCall){
     });
 }
 
-function copyPlayList(playListId, apiCall, sourcePlayListData){
-    if(playListId == "") return;
+function copyPlayList(sourceplaylist, apiCall){
+    if(sourceplaylist == undefined) return;
 
-    DZ.api(apiCall, function(PlayListResponse){
-        console.log("Playlist: " + PlayListResponse)
-            
-        var TargetPLayLists = PlayListResponse
-        
-    });
+    var name = sourceplaylist.title;
+    var targetPlaylist = TargetPLayListData.filter(function(PlayList){
+        return PlayList.title == name;
+    })
 
+    var id = targetPlaylist[0].id;
     /*DZ.api(apiCall, 'POST', { title: data.title }, function (response) {
         if (response.error) {
             var error = response.error;
@@ -163,34 +124,29 @@ function HandleFileSelect(evt) {
 
     myWorker.onmessage = function(e) {
         for (var j = 0, data; data = e.data[j]; j++) {
-            var type = data.content.data.type; 
-            switch (type) {
-                case "playlist":
-                    sourcePlayListData = data.content;
-                    //todo: get TargetPLayListData here
-                    break;
-                case "track":
-                    sourceTracksData = data.content;
-                    break;
-                case "album":
-                    SourceAlbumsData = data.content;
-                    break;
-                case "track":
-                    sourceTracksData = data.content;
-                    break;
-                default:
-                    break;
+            output.push('<p><b>' + data.filename + '</b></p>');
+            document.getElementById('Results').innerHTML = output.join('');
+            
+            var type = data.content.data[0].type;            
+            if(type == "playlist"){
+                sourcePlayListData = data.content;
+                function prepareCopyPlayList(fn) {
+                    DZ.api('user/1240636962/playlists?limit=100', function(e) {
+                        TargetPLayListData = e.data;
+                        fn(sourcePlayListData)
+                    })    
+                }
+                
+                prepareCopyPlayList(function(sourcePlayListData){
+                    copyContent(sourcePlayListData,type)
+                })
+            }else{ 
+                copyContent(data.content,type)
             }
-         }
-    };
-
-    output.push('<p><b>' + data.filename + '</b></p>');
-    document.getElementById('Results').innerHTML = output.join('');
-    copyContent(data.content);
+        }
+    }
 
     myWorker.postMessage({"func": "ReadFiles", "files": files});
-
-    Start(files);
 }
 
 function Init(worker) {
