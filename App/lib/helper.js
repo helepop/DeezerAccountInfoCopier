@@ -1,5 +1,7 @@
 "use strict";
 
+
+
 var myWorker;
 var accessToken;
 var output = [];
@@ -26,7 +28,7 @@ function ReadFile(file){
     reader.readAsBinaryString(file);
 } */
 
-function copyContent(content, type) {
+function copyContent(content, type){
     var id, name;
     for (var j = 0, data; data = content.data[j]; j++) {
         //console.log('data: ' + data);
@@ -35,13 +37,13 @@ function copyContent(content, type) {
             name = data.title;
         else
             name = data.name;
-                        
+        
         var apiCall = 'user/1240636962/' + data.type + 's';
         console.log('apiCall: ' + apiCall + " - " + id + " " + name);
         output.push(j + 1, ' apiCall: ', apiCall, " ", type, ": ", id, " ", name, '<br />');
         switch (type) {
             case "album":
-                copyAlbum(id, apiCall);
+                copyAlbum(data, apiCall);
                 break;
             case "artist":
                 copyArtist(id, apiCall);    
@@ -61,15 +63,17 @@ function copyContent(content, type) {
     }
 }
 
-function copyAlbum(albumId, apiCall){
-    if(albumId == "") return;
-
+function copyAlbum(album, apiCall){
+    if(album === undefined) return;
+    var albumId = album.id;
     DZ.api(apiCall, 'POST', { album_id: albumId }, function (response) {
-        if (response.error) {
+        if (response.error != "") {
             var error = response.error;
             console.log(error.message);
         } else {
             console.log(1 + "." + "id: " + response.id + " - " + response.title);
+            output.push(j + 1, ' apiCall: ', apiCall, " ", type, ": ", id, " ", name, '<br />');
+            document.getElementById('Results').innerHTML = output.join('');
         }
     });
 }
@@ -107,8 +111,38 @@ function copyPlayList(sourceplaylist, apiCall){
     var targetPlaylist = TargetPLayListData.filter(function(PlayList){
         return PlayList.title == name;
     })
+    if(targetPlaylist != undefined){
+        //var targetPlaylistId = targetPlaylist[0].id;
+        apiCall = sourceplaylist.tracklist.replace("http://api.deezer.com/","");
+        DZ.api(apiCall, function(e){
+            var sourceSongs = e.data;
+            var songs = "";
+            for(var sourceSong in sourceSongs){
+                songs = songs + sourceSongs[sourceSong].id + ","
+            }
 
-    var id = targetPlaylist[0].id;
+            function copySongs(songs, callback){
+                apiCall = "playlist/" + targetPlaylist[0].id; + "/tracks"
+                DZ.api(apiCall, 'POST', { songs: songs }, function (response) {
+                    callback(response)
+                });
+            }
+            
+            copySongs(songs, function(response){
+                if (response.error == "") {
+                    var error = response.error;
+                    console.log(error.message);
+                } else {
+                    console.log(1 + "." + "id: " + response.id + " - " + response.title);
+                    output.push(j + 1, ' apiCall: ', apiCall, " ", type, ": ", id, " ", name, '<br />');
+                    document.getElementById('Results').innerHTML = output.join('');
+                }
+            })
+        })
+    }
+    
+
+    
     /*DZ.api(apiCall, 'POST', { title: data.title }, function (response) {
         if (response.error) {
             var error = response.error;
