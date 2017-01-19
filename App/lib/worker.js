@@ -35,10 +35,3 @@ self.addEventListener('message',function(e){
     }
 
 }, false);
-
-function initDeezerAPI(){
-    DZ.init({
-        appId: '214962',
-        channelUrl: 'http://localhost/DeezerAccountInfoCopier/App/channel.html'
-    });
-}

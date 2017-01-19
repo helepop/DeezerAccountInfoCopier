@@ -28,7 +28,7 @@ function ReadFile(file){
     reader.readAsBinaryString(file);
 } */
 
-function copyContent(content, type){
+function copyContent(content, type, callback){
     var id, name;
     for (var j = 0, data; data = content.data[j]; j++) {
         //console.log('data: ' + data);
@@ -59,7 +59,6 @@ function copyContent(content, type){
                 console.log("Type: " & type & "not supported");
                 break;
         }
-        document.getElementById('Results').innerHTML = output.join('');
     }
 }
 
@@ -72,8 +71,8 @@ function copyAlbum(album, apiCall){
             console.log(error.message);
         } else {
             console.log(1 + "." + "id: " + response.id + " - " + response.title);
-            output.push(j + 1, ' apiCall: ', apiCall, " ", type, ": ", id, " ", name, '<br />');
-            document.getElementById('Results').innerHTML = output.join('');
+            /*output.push(j + 1, ' apiCall: ', apiCall, " ", type, ": ", id, " ", name, '<br />');
+            document.getElementById('Results').innerHTML = output.join('');*/
         }
     });
 }
@@ -116,14 +115,18 @@ function copyPlayList(sourceplaylist, apiCall){
         apiCall = sourceplaylist.tracklist.replace("http://api.deezer.com/","");
         DZ.api(apiCall, function(e){
             var sourceSongs = e.data;
-            var songs = "";
+            var songs = "", count = sourceSongs.length - 1;
             for(var sourceSong in sourceSongs){
-                songs = songs + sourceSongs[sourceSong].id + ","
+                if(sourceSong < count)
+                    songs = songs + sourceSongs[sourceSong].id + ","
+                else
+                    songs = songs + sourceSongs[sourceSong].id
             }
 
             function copySongs(songs, callback){
-                apiCall = "playlist/" + targetPlaylist[0].id; + "/tracks"
+                apiCall = "playlist/" + targetPlaylist[0].id + "/tracks"
                 DZ.api(apiCall, 'POST', { songs: songs }, function (response) {
+                    console.log("CopySongs - apiCall: " + apiCall + "songs: " + songs);
                     callback(response)
                 });
             }
@@ -133,9 +136,9 @@ function copyPlayList(sourceplaylist, apiCall){
                     var error = response.error;
                     console.log(error.message);
                 } else {
-                    console.log(1 + "." + "id: " + response.id + " - " + response.title);
-                    output.push(j + 1, ' apiCall: ', apiCall, " ", type, ": ", id, " ", name, '<br />');
-                    document.getElementById('Results').innerHTML = output.join('');
+                    
+                    /*output.push(j + 1, ' apiCall: ', apiCall, " ", type, ": ", id, " ", name, '<br />');
+                    document.getElementById('Results').innerHTML = output.join('');*/
                 }
             })
         })
@@ -172,10 +175,14 @@ function HandleFileSelect(evt) {
                 }
                 
                 prepareCopyPlayList(function(sourcePlayListData){
-                    copyContent(sourcePlayListData,type)
+                    copyContent(sourcePlayListData,type, function(){
+                        document.getElementById('Results').innerHTML = output.join('');
+                    });
                 })
             }else{ 
-                copyContent(data.content,type)
+                copyContent(data.content,type, function(){
+                    document.getElementById('Results').innerHTML = output.join('');
+                });
             }
         }
     }
